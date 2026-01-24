@@ -34,16 +34,24 @@ class Softmax(object):
     loss = 0.0
 
     # ================================================================ #
-    # YOUR CODE HERE:
     #   Calculate the normalized softmax loss.  Store it as the variable loss.
     #   (That is, calculate the sum of the losses of all the training 
     #   set margins, and then normalize the loss by the number of 
     #   training examples.)
     # ================================================================ #
-    pass
-    
-    # ================================================================ #
-    # END YOUR CODE HERE
+    N = X.shape[0]
+    scores = X.dot(self.W.T)  # Shape (N, C)
+
+    # Numerical stability shift
+    scores -= np.max(scores, axis=1, keepdims=True)
+
+    # Softmax probabilities
+    exp_scores = np.exp(scores)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+
+    # Loss: -log(probability of correct class)
+    correct_logprobs = -np.log(probs[np.arange(N), y])
+    loss = np.sum(correct_logprobs) / N
     # ================================================================ #
 
     return loss
@@ -61,14 +69,34 @@ class Softmax(object):
     grad = np.zeros_like(self.W)
   
     # ================================================================ #
-    # YOUR CODE HERE:
     #   Calculate the softmax loss and the gradient. Store the gradient
     #   as the variable grad.
     # ================================================================ #
-    pass
-    
-    # ================================================================ #
-    # END YOUR CODE HERE
+    num_train = X.shape[0]
+    num_classes = self.W.shape[0]
+
+    for i in range(num_train):
+      # Forward pass for one example
+      scores = self.W.dot(X[i])  # Shape (C,)
+      scores -= np.max(scores)  # Stability
+
+      exp_scores = np.exp(scores)
+      probs = exp_scores / np.sum(exp_scores)
+
+      loss += -np.log(probs[y[i]])
+
+      # Backward pass (Gradient)
+      # dL/df = p - 1(y_i)
+      dscores = probs
+      dscores[y[i]] -= 1
+
+      # dL/dW = dL/df * df/dW = dscores * X[i]
+      # Reshape for outer product: (C,1) * (1, D) -> (C, D)
+      grad += dscores.reshape(-1, 1).dot(X[i].reshape(1, -1))
+
+    loss /= num_train
+    grad /= num_train
+
     # ================================================================ #
 
     return loss, grad
@@ -103,13 +131,28 @@ class Softmax(object):
     grad = np.zeros(self.W.shape) # initialize the gradient as zero
   
     # ================================================================ #
-    # YOUR CODE HERE:
     #   Calculate the softmax loss and gradient WITHOUT any for loops.
     # ================================================================ #
-    pass
-    
-    # ================================================================ #
-    # END YOUR CODE HERE
+    num_train = X.shape[0]
+
+    # 1. Forward Pass
+    scores = X.dot(self.W.T)  # (N, C)
+    scores -= np.max(scores, axis=1, keepdims=True)  # Stability
+
+    exp_scores = np.exp(scores)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)  # (N, C)
+
+    # 2. Loss Calculation
+    correct_logprobs = -np.log(probs[np.arange(num_train), y])
+    loss = np.sum(correct_logprobs) / num_train
+
+    # 3. Backward Pass (Gradient)
+    dscores = probs
+    dscores[np.arange(num_train), y] -= 1  # Gradient of softmax loss
+    dscores /= num_train  # Normalize gradient
+
+    # Backprop to W: (C, N) dot (N, D) -> (C, D)
+    grad = dscores.T.dot(X)
     # ================================================================ #
 
     return loss, grad
@@ -154,9 +197,9 @@ class Softmax(object):
       #   in the dataset.  Use np.random.choice.  It's okay to sample with
       #   replacement.
       # ================================================================ #
-      pass
-      # ================================================================ #
-      # END YOUR CODE HERE
+      indices = np.random.choice(num_train, batch_size)
+      X_batch = X[indices]
+      y_batch = y[indices]
       # ================================================================ #
 
       # evaluate loss and gradient
@@ -164,13 +207,9 @@ class Softmax(object):
       loss_history.append(loss)
 
       # ================================================================ #
-      # YOUR CODE HERE:
       #   Update the parameters, self.W, with a gradient step 
       # ================================================================ #
-      pass
-
-      # ================================================================ #
-      # END YOUR CODE HERE
+      self.W -= learning_rate * grad
       # ================================================================ #
 
       if verbose and it % 100 == 0:
@@ -190,12 +229,10 @@ class Softmax(object):
     """
     y_pred = np.zeros(X.shape[1])
     # ================================================================ #
-    # YOUR CODE HERE:
     #   Predict the labels given the training data.
     # ================================================================ #
-    pass
-    # ================================================================ #
-    # END YOUR CODE HERE
+    scores = X.dot(self.W.T)
+    y_pred = np.argmax(scores, axis=1)
     # ================================================================ #
 
     return y_pred
