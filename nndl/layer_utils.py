@@ -10,7 +10,6 @@ permission to use this code.  To see the original version, please visit
 cs231n.stanford.edu.  
 """
 
-
 def affine_relu_forward(x, w, b):
   """
   Convenience layer that performs an affine transform followed by a ReLU
