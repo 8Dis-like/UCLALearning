@@ -15,7 +15,7 @@ CM146: The dataset is adapted from the UCI Machine Learning Repository and it co
 
 C147/247A: The CIFAR-10 dataset is a foundational, widely used computer vision resource consisting of 60,000 color images (32 * 32 pixels) divided into 10 distinct classes (e.g., planes, cars, birds, cats, dogs). It is split into 50,000 training images and 10,000 testing images, often used for benchmarking machine learning algorithms and deep neural networks. 
 
-C236A: [Q8Bot](https://github.com/EricYufengWu/q8bot?tab=readme-ov-file)
+C163A/C263A: [Q8Bot](https://github.com/EricYufengWu/q8bot?tab=readme-ov-file)
 
 CS260R: OpenAI [Gym](https://github.com/openai/gym), [Metadrive](https://metadriverse.github.io/metadrive/)
 
